@@ -1,1 +1,1 @@
-MySQL을 Python으로 처리해서 이미지 메이킹
+MySQL을 Python으로 처리해서 이미지 메이킹하는 겁니다.
