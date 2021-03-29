@@ -20,18 +20,44 @@ _db = pymysql.connect(
 #커서 지정
 cursor = _db.cursor(pymysql.cursors.DictCursor)
 
-#SQL 구문 모음
-_readtest = 'SELECT * FROM test'
-_select_sorted_data = 'SELECT date, period, description FROM test ORDER BY date ASC, period ASC;'
-
+#SQL에 쓰이는 변수 모음
+__table_name = """test"""
+__select = """SELECT"""
 #------------
-cursor.execute(_select_sorted_data)
-result = cursor.fetchall()
 
-for dic in result:
-    for key, value in dic.items():
+#SQL 구문 모음
+_readtest = """%s * FROM %s;"""
+_select_sorted_data = """SELECT date, period, description FROM %s ORDER BY date ASC, period ASC;"""
+_adddata = 'INSERT INTO %s'
+#------------
 
-        if isinstance(value, datetime.date):
-            value = value.strftime("%m/%d")
-        print(key + " : " + str(value))
+def showdata():
+    cursor.execute(_select_sorted_data, __table_name)
+    result = cursor.fetchall()
+
+    for dic in result:
+        date = None
+        period = None
+        desc = None
+        for key, value in dic.items():
+            if isinstance(value, datetime.date):
+                value = value.strftime("%m/%d")
+            value = str(value)
+            if key == 'date':
+                date = value
+            elif key == 'period':
+                period = value
+            elif key == 'description':
+                desc = value
+        print(date + " " + period + " " + desc)
+
+
+#showdata()
+
+cursor.execute(_readtest, (__select, __table_name))
+
+print(__select)
+
+
+
 
