@@ -2,14 +2,24 @@ from PIL import Image
 import numpy as np
 import pymysql
 
-numofdata = 5
+with open('password.txt') as f:
+    logindata = f.read().splitlines() 
+id = logindata[0]
+pw = logindata[1]
 
-img = Image.new("RGB", (1000, 400 + numofdata * 300 + 300), "#FFFFFF")
 
-print(img.size)
+_db = pymysql.connect(
+    user=id, 
+    passwd=pw, 
+    host='34.82.97.92', 
+    db='schedule', 
+    charset='utf8'
+)
 
-img.show()
+cursor = _db.cursor(pymysql.cursors.DictCursor)
 
-mydb = {
-    
-}
+_readtest = 'SELECT * FROM test'
+cursor.execute(_readtest)
+result = cursor.fetchall()
+print(result)
+
