@@ -12,6 +12,8 @@ daytime (pip install daytime)
 TODO:
 SQL에 연결 후 내용 받아오기 - DONE
 
+내용 전환 완료 - DONE
+
 받아온 내용을 이미지로 전환 - TODO
 
 카카오톡 봇과 연동 - TODO
