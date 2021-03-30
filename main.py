@@ -18,21 +18,25 @@ _db = pymysql.connect(
     charset='utf8'
 )
 #커서 지정
+
 cursor = _db.cursor(pymysql.cursors.DictCursor)
+insertcursor = _db.cursor(pymysql.cursors.Cursor)
 
 #SQL에 쓰이는 변수 모음
-__table_name = """test"""
-__select = """SELECT"""
+__table_name = 'test'
+__select = 'SELECT'
+
 #------------
 
 #SQL 구문 모음
-_readtest = """%s * FROM %s;"""
-_select_sorted_data = """SELECT date, period, description FROM %s ORDER BY date ASC, period ASC;"""
+_readtest = "SELECT * FROM %s;"
+_select_sorted_data = "SELECT date, period, description FROM %s ORDER BY date ASC, period ASC;"
 _adddata = 'INSERT INTO %s'
 #------------
 
+
 def showdata():
-    cursor.execute(_select_sorted_data, __table_name)
+    cursor.execute(_select_sorted_data % (__table_name))
     result = cursor.fetchall()
 
     for dic in result:
@@ -52,12 +56,11 @@ def showdata():
         print(date + " " + period + " " + desc)
 
 
-#showdata()
+showdata()
 
-cursor.execute(_readtest, (__select, __table_name))
+#cursor.execute(_readtest, args=(__select, __table_name))
 
-print(__select)
+#cursor.execute(_readtest, (str(__table_name)))
+#result = cursor.fetchall()
 
-
-
-
+#print(result)
