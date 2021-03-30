@@ -57,10 +57,3 @@ def showdata():
 
 
 showdata()
-
-#cursor.execute(_readtest, args=(__select, __table_name))
-
-#cursor.execute(_readtest, (str(__table_name)))
-#result = cursor.fetchall()
-
-#print(result)
