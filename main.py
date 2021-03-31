@@ -26,7 +26,7 @@ insertcursor = _db.cursor(pymysql.cursors.Cursor)
 
 #SQL 구문 모음
 _readtest = "SELECT * FROM %s;"
-_select_sorted_data = "SELECT date, period, description FROM %s ORDER BY date ASC, period ASC;"
+_select_sorted_data = "SELECT date, period, description, duration FROM %s ORDER BY date ASC, period ASC;"
 _adddata = 'INSERT INTO %s'
 #------------
 
@@ -51,9 +51,7 @@ ___noto_sans = "fonts\\Noto_Sans_KR\\NotoSansKR-Medium.otf"
 def getfont(fontpath, fontsize):
     return ImageFont.truetype(fontpath, fontsize)
 
-def printtext(str, fnt, fontcolor): # 텍스트를 출력하는 함수 (자동 줄바꿈) (출력할 문자열, 폰트, 폰트의 색 (R,G,B), 다음줄과의 간격)
-    global curx
-    global cury
+def printtext(str, fnt, fontcolor, curx, cury): # 텍스트를 출력하는 함수 (자동 줄바꿈) (출력할 문자열, 폰트, 폰트의 색 (R,G,B), 다음줄과의 간격)
     dt.text((curx, cury), str, font = fnt, fill = fontcolor)
     nextx, nexty = dt.textsize(str, font = fnt)
     print(nextx)
@@ -73,19 +71,23 @@ def dataquery():
         date = None
         period = None
         desc = None
+        dur = None
         for key, value in dic.items():
             if isinstance(value, type(datetime.date)):
                 value = value.strftime("%m/%d")
             value = str(value)
+            print(key)
             if key == 'date':
                 date = value
             elif key == 'period':
                 period = value
             elif key == 'description':
                 desc = value
+            elif key == 'duration':
+                dur = value
+
         print(date + " " + period + " " + desc)
-        stddic.setdefault(date,[]).append((period, desc))
-        
+        stddic.setdefault(date,[]).append((period, desc, dur))
 
 def setupperpart():
     upper_part = Image.open('Image Files\\Upper bar.png' , 'r')
@@ -97,12 +99,11 @@ def setupperpart():
     monthft = getfont(___d2coding_font, 100)
     dayft = getfont(___d2coding_font, 300)
     satft = getfont(___noto_sans, 32)
-
     #날짜 정하기
     today = date.today()
     tomorrow = today + timedelta(days = 1)
     sat_day = date(2022, 11, 17)
-    sat_left = sat_day - today
+    sat_left = sat_day - tomorrow
 
     #날짜를 문자열로 변환
     monthstr = tomorrow.strftime('%b').upper()
@@ -116,17 +117,39 @@ def setupperpart():
     dt.text(getmiddletext(daystr, dayft, 320, 150), daystr, font = dayft, fill = (255, 255, 255))
     dt.text(getmiddletext(satleftstr, satft, 420, 18), satleftstr, font = satft, fill = (0, 0, 0))
 
+    # 일정 표 출력
+    curx = 500
+    cury = 270
+
+    for i in range(1, 30):
+        nextday = tomorrow + timedelta(days = i)
+        nextdaystr = nextday.strftime('%d')
+        nextquerystr = str(nextday.strftime("%Y-%m-%d"))
+        nextx = curx + (i * 50) + 2
+        dt.text(getmiddletext(nextdaystr, satft, nextx, cury), nextdaystr, font = satft, fill = (0, 0, 0))
+        if nextquerystr in stddic:
+            lenstr = str(len(stddic[nextquerystr]))
+            for j in stddic[nextquerystr]:
+                dur = int(j[2])
+                desc = str(j[1])
+                if (dur > 0):
+                    dt.rectangle(((nextx - 2, 140), (nextx + (dur * 50) + 2, 150)), fill = 'red')
+                    dt.text(getmiddletext(desc, satft, (nextx + ((dur * 50)) / 2), 100), desc, font = satft,  fill = (0, 0, 0))
+
+            dt.text(getmiddletext(lenstr, satft, nextx, 180), lenstr, font = satft, fill = (0, 0, 0))
+
+
 def imageinit(): #이미지의 크기를 미리 결정
     imagex = 2000
     imagey = 300
-    for key, value in stddic.items():
-        print(value)
+    #for key, value in stddic.items():
+        #print(key)
+        #print(value)
     return imagex, imagey
 
     
 
-curx = 50
-cury = 300
+
 # cursor position init
 
 dataquery()
@@ -136,4 +159,4 @@ dt = ImageDraw.Draw(img) # make text draw cursor
 setupperpart()
 
 img.show()
-#img.save('output.png')
+img.save('output.png')
