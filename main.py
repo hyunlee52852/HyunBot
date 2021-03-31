@@ -2,6 +2,8 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import pymysql
 import datetime
+from datetime import datetime, timedelta, date
+import textwrap
 
 #password.txt 파일에서 id와 pw를 가져온다
 with open('password.txt') as f:
@@ -34,20 +36,36 @@ __select = 'SELECT'
 
 #------------
 
+#학생들 정보 딕셔너리 선언
+stddic = {}
+
+
 #폰트 모음
-___d2coding_font = ImageFont.truetype("fonts\D2coding\D2CodingLigature\D2coding.ttf", 50)
-___d2coding_font_bold = ImageFont.truetype("fonts\D2coding\D2CodingLigature\D2codingBold.ttf", 100)
+___d2coding_font = "fonts\\D2coding\\D2CodingLigature\\D2coding.ttf"
+___d2coding_font_bold = "fonts\\D2coding\\D2CodingLigature\\D2codingBold.ttf"
+___noto_sans_bold = "fonts\\Noto_Sans_KR\\NotoSansKR-Bold.otf"
+___noto_sans = "fonts\\Noto_Sans_KR\\NotoSansKR-Medium.otf"
 #-----------
 
-img = Image.new('RGB', (2000, 3000), color = 'white') # create img
+#텍스트 관련 함수 모음
+def getfont(fontpath, fontsize):
+    return ImageFont.truetype(fontpath, fontsize)
 
-dt = ImageDraw.Draw(img) # make text draw cursor
+def printtext(str, fnt, fontcolor): # 텍스트를 출력하는 함수 (자동 줄바꿈) (출력할 문자열, 폰트, 폰트의 색 (R,G,B), 다음줄과의 간격)
+    global curx
+    global cury
+    dt.text((curx, cury), str, font = fnt, fill = fontcolor)
+    nextx, nexty = dt.textsize(str, font = fnt)
+    print(nextx)
+    print(nexty)
 
-curx = 50
-cury = 100
-# cursor position init
+def getmiddletext(str, fnt, fx, fy):
+    sizex, sizey = dt.textsize(str, font = fnt)
+    return (fx - (sizex / 2), fy - (sizey / 2))
+#------------
 
-def showdata():
+
+def dataquery():
     cursor.execute(_select_sorted_data % (__table_name))
     result = cursor.fetchall()
     
@@ -56,7 +74,7 @@ def showdata():
         period = None
         desc = None
         for key, value in dic.items():
-            if isinstance(value, datetime.date):
+            if isinstance(value, type(datetime.date)):
                 value = value.strftime("%m/%d")
             value = str(value)
             if key == 'date':
@@ -66,22 +84,56 @@ def showdata():
             elif key == 'description':
                 desc = value
         print(date + " " + period + " " + desc)
-        printtext("날짜 : " + date, ___d2coding_font_bold, (0, 0, 0), 50)
-        printtext("교시 : " + period, ___d2coding_font_bold, (0, 0, 0), 20)
-        printtext(desc, ___d2coding_font, (0, 0, 0), 20)
-        print(dt.textsize(desc, font = ___d2coding_font))
+        stddic.setdefault(date,[]).append((period, desc))
+        
 
-def printtext(str, fnt, fontcolor, space): # 텍스트를 출력하는 함수 (출력할 문자열, 폰트, 폰트의 색 (R,G,B), 다음줄과의 간격)
-    global curx
-    global cury
-    dt.text((curx, cury), str, font = fnt, fill = fontcolor)
-    nextx, nexty = dt.textsize(str, font = fnt)
-    print(nextx)
-    print(nexty)
-    cury += nexty + space
+def setupperpart():
+    upper_part = Image.open('Image Files\\Upper bar.png' , 'r')
+
+    #상단 이미지 png로 불러오기
+    upper_part = Image.composite(upper_part, Image.new('RGB', upper_part.size, 'white'), upper_part)
+    img.paste(upper_part, (0, 0))
+    # 월, 일, 요일 출력
+    monthft = getfont(___d2coding_font, 100)
+    dayft = getfont(___d2coding_font, 300)
+    satft = getfont(___noto_sans, 32)
+
+    #날짜 정하기
+    today = date.today()
+    tomorrow = today + timedelta(days = 1)
+    sat_day = date(2022, 11, 17)
+    sat_left = sat_day - today
+
+    #날짜를 문자열로 변환
+    monthstr = tomorrow.strftime('%b').upper()
+    daystr = tomorrow.strftime('%d')
+    weekdaystr = tomorrow.strftime('%a').upper()
+    satleftstr = "D-" + str(sat_left.days)
+
+    #글자 출력
+    dt.text(getmiddletext(monthstr, monthft, 80, 110), monthstr, font = monthft, fill = (255, 255, 255))
+    dt.text(getmiddletext(weekdaystr, monthft, 80, 230), weekdaystr, font = monthft, fill = (255, 255, 255))
+    dt.text(getmiddletext(daystr, dayft, 320, 150), daystr, font = dayft, fill = (255, 255, 255))
+    dt.text(getmiddletext(satleftstr, satft, 420, 18), satleftstr, font = satft, fill = (0, 0, 0))
+
+def imageinit(): #이미지의 크기를 미리 결정
+    imagex = 2000
+    imagey = 300
+    for key, value in stddic.items():
+        print(value)
+    return imagex, imagey
+
     
 
-showdata()
-#printtext( "날짜 : 03/30" , ___d2coding_font_bold, (0, 0, 0))
-#printtext( "If I Write English, Will it change?" , ___d2coding_font_bold, (0, 0, 0))
+curx = 50
+cury = 300
+# cursor position init
+
+dataquery()
+imagex, imagey = imageinit()
+img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
+dt = ImageDraw.Draw(img) # make text draw cursor
+setupperpart()
+
 img.show()
+#img.save('output.png')
