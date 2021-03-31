@@ -133,8 +133,8 @@ def setupperpart():
                 dur = int(j[2])
                 desc = str(j[1])
                 if (dur > 0):
-                    dt.rectangle(((nextx - 2, 140), (nextx + (dur * 50) + 2, 150)), fill = 'red')
-                    dt.text(getmiddletext(desc, satft, (nextx + ((dur * 50)) / 2), 100), desc, font = satft,  fill = (0, 0, 0))
+                    dt.rectangle(((nextx - 2, 140), (nextx + (dur * 50) + 2, 150)), fill = 'black')
+                    dt.text(getmiddletext(desc, satft, (nextx + ((dur * 50)) / 2), 110), desc, font = satft,  fill = (0, 0, 0))
 
             dt.text(getmiddletext(lenstr, satft, nextx, 180), lenstr, font = satft, fill = (0, 0, 0))
 
