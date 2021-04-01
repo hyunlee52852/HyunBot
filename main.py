@@ -4,6 +4,7 @@ import pymysql
 import datetime
 from datetime import datetime, timedelta, date
 import textwrap
+import math
 
 #password.txt 파일에서 id와 pw를 가져온다
 with open('password.txt') as f:
@@ -36,9 +37,43 @@ __select = 'SELECT'
 
 #------------
 
-#학생들 정보 딕셔너리 선언
+#학생 정보 딕셔너리 선언
 stddic = {}
 
+#시간표 변수들
+
+#교과과목
+_LIT = '문학'
+_ENG = '영어'
+_MAT = '수학'
+_PE = '체육'
+_MUS = '음악'
+_SPE = '창체'
+
+#전공과목
+_MTA = '수A'
+_MTB = '수B'
+_JAP = '일어'
+_IFA = '정A'
+_IFB = '정B'
+_SYS = '시프'
+_DTA = '료A'
+_DTB = '료B'
+_SPC = '창특'
+_IND = '공업'
+_SCF = '창진' 
+
+_TIMETABLE = [
+    [_MTA, _PE, _JAP, _IFB, _IFB, _IND, None],
+    [_LIT, _ENG, _MAT, _SYS, _SYS, _SPE, _SPE],
+    [_DTA, _JAP, _MTB, _IFA, _ENG, _LIT, _MAT],
+    [_SYS, _SYS, _MTA, _SPC, _JAP, _MUS, _DTB],
+    [_MAT, _LIT, _IND, _SYS, _SYS, _JAP, _SCF]
+]
+
+#글로벌 위치 변수 선언.
+globalx = 0
+globaly = 0
 
 #폰트 모음
 ___d2coding_font = "fonts\\D2coding\\D2CodingLigature\\D2coding.ttf"
@@ -51,17 +86,42 @@ ___noto_sans = "fonts\\Noto_Sans_KR\\NotoSansKR-Medium.otf"
 def getfont(fontpath, fontsize):
     return ImageFont.truetype(fontpath, fontsize)
 
-def printtext(str, fnt, fontcolor, curx, cury): # 텍스트를 출력하는 함수 (자동 줄바꿈) (출력할 문자열, 폰트, 폰트의 색 (R,G,B), 다음줄과의 간격)
-    dt.text((curx, cury), str, font = fnt, fill = fontcolor)
-    nextx, nexty = dt.textsize(str, font = fnt)
-    print(nextx)
-    print(nexty)
+def printtext(tarstr, fnt, curx, cury, fontcolor): # 텍스트를 출력하는 함수
+    dt.text(getmiddletext(tarstr, fnt, curx, cury), tarstr, font = fnt, fill = fontcolor)
+    #dt.text(getmiddletext(lenstr, satft, nextx, 180), lenstr, font = satft, fill = (0, 0, 0))
+
 
 def getmiddletext(str, fnt, fx, fy):
     sizex, sizey = dt.textsize(str, font = fnt)
     return (fx - (sizex / 2), fy - (sizey / 2))
+
+def printmultiplelines(tarstr, len , curx, cury, fnt, fontcolor):
+    lines = textwrap.wrap(tarstr, width=len)
+    print(lines)
+    for line in lines:
+        w, h = fnt.getsize(line)
+        dt.text((curx, cury), line, fill = fontcolor, font = fnt)
+        cury += h
+    return curx, cury
 #------------
 
+#도형 관련 함수 모음
+def linedashed(x0, y0, x1, y1, dashlen, ratio, wdt): 
+    dx=x1-x0 # delta x
+    dy=y1-y0 # delta y
+    # check whether we can avoid sqrt
+    if dy==0: len=dx
+    elif dx==0: len=dy
+    else: len=math.sqrt(dx*dx+dy*dy) # length of line
+    xa=dx/len # x add for 1px line length
+    ya=dy/len # y add for 1px line length
+    step=dashlen*ratio # step to the next dash
+    a0=0
+    while a0<len:
+        a1=a0+dashlen
+        if a1>len: a1=len
+        dt.line((x0+xa*a0, y0+ya*a0, x0+xa*a1, y0+ya*a1), fill = (0,0,0), width= wdt)
+        a0+=step 
 
 def dataquery():
     cursor.execute(_select_sorted_data % (__table_name))
@@ -76,7 +136,6 @@ def dataquery():
             if isinstance(value, type(datetime.date)):
                 value = value.strftime("%m/%d")
             value = str(value)
-            print(key)
             if key == 'date':
                 date = value
             elif key == 'period':
@@ -86,7 +145,7 @@ def dataquery():
             elif key == 'duration':
                 dur = value
 
-        print(date + " " + period + " " + desc)
+        #print(date + " " + period + " " + desc)
         stddic.setdefault(date,[]).append((period, desc, dur))
 
 def setupperpart():
@@ -112,21 +171,28 @@ def setupperpart():
     satleftstr = "D-" + str(sat_left.days)
 
     #글자 출력
-    dt.text(getmiddletext(monthstr, monthft, 80, 110), monthstr, font = monthft, fill = (255, 255, 255))
-    dt.text(getmiddletext(weekdaystr, monthft, 80, 230), weekdaystr, font = monthft, fill = (255, 255, 255))
-    dt.text(getmiddletext(daystr, dayft, 320, 150), daystr, font = dayft, fill = (255, 255, 255))
-    dt.text(getmiddletext(satleftstr, satft, 420, 18), satleftstr, font = satft, fill = (0, 0, 0))
+    printtext(monthstr, monthft, 80, 110, (255, 255, 255))
+    printtext(weekdaystr, monthft, 80, 230, (255, 255, 255))
+    printtext(daystr, dayft, 320, 150, (255, 255, 255))
+    printtext(satleftstr, satft, 420, 18, (0, 0, 0))
 
     # 일정 표 출력
     curx = 500
     cury = 270
 
-    for i in range(1, 30):
+    for i in range(-30, 30):
         nextday = tomorrow + timedelta(days = i)
         nextdaystr = nextday.strftime('%d')
         nextquerystr = str(nextday.strftime("%Y-%m-%d"))
         nextx = curx + (i * 50) + 2
-        dt.text(getmiddletext(nextdaystr, satft, nextx, cury), nextdaystr, font = satft, fill = (0, 0, 0))
+        textcol = (0, 0, 0)
+        if(i <= 0):
+            nextx = curx
+        if(i > 0):
+            if(nextday.weekday() == 5 or nextday.weekday() == 6):
+                textcol = (255, 255, 255)
+                dt.rectangle(((nextx - 25, 250), (nextx + 25, 300)), fill=(0, 0, 0)) 
+            printtext(nextdaystr, satft, nextx, cury, textcol)
         if nextquerystr in stddic:
             lenstr = str(len(stddic[nextquerystr]))
             for j in stddic[nextquerystr]:
@@ -134,14 +200,35 @@ def setupperpart():
                 desc = str(j[1])
                 if (dur > 0):
                     dt.rectangle(((nextx - 2, 140), (nextx + (dur * 50) + 2, 150)), fill = 'black')
-                    dt.text(getmiddletext(desc, satft, (nextx + ((dur * 50)) / 2), 110), desc, font = satft,  fill = (0, 0, 0))
+                    printtext(desc, satft, (nextx + ((dur * 50)) / 2), 110, (0, 0, 0))
+            if(i > 0):
+                printtext(lenstr, satft, nextx, 180, (0, 0, 0))
 
-            dt.text(getmiddletext(lenstr, satft, nextx, 180), lenstr, font = satft, fill = (0, 0, 0))
 
+def settomorrowdata():
+    globalx = 50
+    globaly = 450
+    tomorrow = date.today() + timedelta(days=1)
+    tomorrowstr = str(tomorrow.strftime("%Y-%m-%d"))
+    kyoshifont = getfont(___noto_sans, 40)
+    textfont = getfont(___noto_sans, 30)
+    periodfont = getfont(___noto_sans, 80)
+    periodnamefont = getfont(___noto_sans, 60)
+    kyoshi = '교시'
+    printtext(kyoshi, kyoshifont, 100, 380, (0, 0, 0))
+    linedashed(1000, 400, 1000, 1500, 20, 2, 5)
+    for curperiod in range(1, 8):
+        printtext(str(curperiod), periodfont, 100, globaly, (0, 0, 0))
+        cursub = str(_TIMETABLE[tomorrow.weekday()][curperiod - 1])
+        printtext(cursub, periodnamefont, 200, globaly, (0, 0, 0))
+        globaly += 100
+
+        
+    
 
 def imageinit(): #이미지의 크기를 미리 결정
     imagex = 2000
-    imagey = 300
+    imagey = 1300
     #for key, value in stddic.items():
         #print(key)
         #print(value)
@@ -157,6 +244,7 @@ imagex, imagey = imageinit()
 img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
 dt = ImageDraw.Draw(img) # make text draw cursor
 setupperpart()
+settomorrowdata()
 
 img.show()
 img.save('output.png')
