@@ -5,6 +5,9 @@ import datetime
 from datetime import datetime, timedelta, date
 import textwrap
 import math
+import requests
+from bs4 import BeautifulSoup
+import re
 
 #password.txt 파일에서 id와 pw를 가져온다
 with open('password.txt') as f:
@@ -62,14 +65,19 @@ _DTB = '료B'
 _SPC = '창특'
 _IND = '공업'
 _SCF = '창진' 
-
+_NON = 'N/A'
 _TIMETABLE = [
-    [_MTA, _PE, _JAP, _IFB, _IFB, _IND, None],
+    [_MTA, _PE, _JAP, _IFB, _IFB, _IND, _NON],
     [_LIT, _ENG, _MAT, _SYS, _SYS, _SPE, _SPE],
     [_DTA, _JAP, _MTB, _IFA, _ENG, _LIT, _MAT],
     [_SYS, _SYS, _MTA, _SPC, _JAP, _MUS, _DTB],
     [_MAT, _LIT, _IND, _SYS, _SYS, _JAP, _SCF]
 ]
+#시간 변수 모음
+
+today = date.today()
+tomorrow = today + timedelta(days = 1)
+sat_day = date(2022, 11, 17)
 
 #글로벌 위치 변수 선언.
 globalx = 0
@@ -97,12 +105,12 @@ def getmiddletext(str, fnt, fx, fy):
 
 def printmultiplelines(tarstr, len , curx, cury, fnt, fontcolor):
     lines = textwrap.wrap(tarstr, width=len)
-    print(lines)
+    #print(lines)
     for line in lines:
         w, h = fnt.getsize(line)
         dt.text((curx, cury), line, fill = fontcolor, font = fnt)
         cury += h
-    return curx, cury
+    return cury
 #------------
 
 #도형 관련 함수 모음
@@ -121,7 +129,48 @@ def linedashed(x0, y0, x1, y1, dashlen, ratio, wdt):
         a1=a0+dashlen
         if a1>len: a1=len
         dt.line((x0+xa*a0, y0+ya*a0, x0+xa*a1, y0+ya*a1), fill = (0,0,0), width= wdt)
-        a0+=step 
+        a0+=step
+
+#급식 데이터 받아오는 함수 credit : https://mandu-mandu.tistory.com/21
+def get_html(url):
+   _html = ""
+   resp = requests.get(url)
+   if resp.status_code == 200:
+      _html = resp.text
+   return _html
+ 
+ 
+def get_diet(code, ymd, weekday):
+    schMmealScCode = code #int
+    schYmd = ymd #str
+    
+    num = weekday + 1 #int 0월1화2수3목4금5토6일
+    URL = (
+            "http://stu.sen.go.kr/sts_sci_md01_001.do?"
+            "schulCode=B100000405&schulCrseScCode=4&schulKndScCode=04"
+            "&schMmealScCode=%d&schYmd=%s" % (schMmealScCode, schYmd)
+        )
+    html = get_html(URL)
+    soup = BeautifulSoup(html, 'html.parser')
+    element = soup.find_all("tr")
+    element = element[2].find_all('td')
+    try:
+        element = element[num] #num
+        element = str(element)
+        element = element.replace('[', '')
+        element = element.replace(']', '')
+        element = element.replace('&amp;', '&')
+        element = element.replace('<br/>', '\n')
+        element = element.replace('<td class="textC last">', '')
+        element = element.replace('<td class="textC">', '')
+        element = element.replace('</td>', '')
+        element = element.replace('(h)', '')
+        element = element.replace('.', '')
+        element = re.sub(r"\d", "", element)
+    except:
+        element = " "
+    
+    return element
 
 def dataquery():
     cursor.execute(_select_sorted_data % (__table_name))
@@ -158,10 +207,7 @@ def setupperpart():
     monthft = getfont(___d2coding_font, 100)
     dayft = getfont(___d2coding_font, 300)
     satft = getfont(___noto_sans, 32)
-    #날짜 정하기
-    today = date.today()
-    tomorrow = today + timedelta(days = 1)
-    sat_day = date(2022, 11, 17)
+
     sat_left = sat_day - tomorrow
 
     #날짜를 문자열로 변환
@@ -199,36 +245,88 @@ def setupperpart():
                 dur = int(j[2])
                 desc = str(j[1])
                 if (dur > 0):
+                    if(i <= 0):
+                        dur = ((nextday + timedelta(days=dur)) - tomorrow).days
                     dt.rectangle(((nextx - 2, 140), (nextx + (dur * 50) + 2, 150)), fill = 'black')
-                    printtext(desc, satft, (nextx + ((dur * 50)) / 2), 110, (0, 0, 0))
+                    #printtext(desc, satft, (nextx + ((dur * 50)) / 2), 110, (0, 0, 0))
+                    printmultiplelines(desc, 40, (nextx ), 90,satft, (0, 0, 0))
             if(i > 0):
                 printtext(lenstr, satft, nextx, 180, (0, 0, 0))
 
 
 def settomorrowdata():
     globalx = 50
-    globaly = 450
-    tomorrow = date.today() + timedelta(days=1)
+    globaly = 300
     tomorrowstr = str(tomorrow.strftime("%Y-%m-%d"))
     kyoshifont = getfont(___noto_sans, 40)
     textfont = getfont(___noto_sans, 30)
     periodfont = getfont(___noto_sans, 80)
     periodnamefont = getfont(___noto_sans, 60)
     kyoshi = '교시'
-    printtext(kyoshi, kyoshifont, 100, 380, (0, 0, 0))
-    linedashed(1000, 400, 1000, 1500, 20, 2, 5)
-    for curperiod in range(1, 8):
-        printtext(str(curperiod), periodfont, 100, globaly, (0, 0, 0))
-        cursub = str(_TIMETABLE[tomorrow.weekday()][curperiod - 1])
-        printtext(cursub, periodnamefont, 200, globaly, (0, 0, 0))
-        globaly += 100
+    temptomorrow = tomorrow
+    if(tomorrow.weekday() > 4):
+        globaly = 300
+        printmultiplelines("주말입니다! 다음 주 월요일 일정을 확인하세요.", 30, 50, globaly, periodfont, (0, 0, 0))
+        temptomorrow += timedelta(days = 7 - tomorrow.weekday())
+        globaly += 130
+        linedashed(0, globaly, 2000, globaly, 40, 1.5, 10)
+        globaly += 50
+        tomorrowstr = str(temptomorrow.strftime("%Y-%m-%d"))
+    tempy = globaly - 30
+    gupsiky = printfooddata(globaly)
+    globaly = printmultiplelines(kyoshi, 40, 50, globaly, kyoshifont, (0, 0, 0))
+    
+    perioddata = [[] for i in range(10)]
+    if(tomorrowstr in stddic):
+        for dat in stddic[tomorrowstr]:
+            perioddata[int(dat[0])].append(dat[1])
 
+    #print(perioddata)
+    for curperiod in range(0, 8):
+        printmultiplelines(str(curperiod), 40, 50, globaly, periodfont, (0, 0, 0))
+        cursub = str(_TIMETABLE[temptomorrow.weekday()][curperiod - 1])
+        if(curperiod == 0):
+            cursub = 'HR'
+        printmultiplelines(cursub, 40, 100, globaly + 15, periodnamefont, (0, 0, 0))
+        beforey = globaly
+        for dat in perioddata[curperiod]:
+            globaly = printmultiplelines(dat, 30, 230, globaly + 30, textfont, (0, 0, 0))
+            #print(globaly)
+        if(globaly - beforey <= 70):
+            globaly = beforey + 100
+    globaly += 20
+
+    globaly = max(globaly, gupsiky)
+
+    linedashed(1000, tempy, 1000, globaly, 20, 2, 5)
+    linedashed(0, globaly, 2000, globaly, 40, 1, 5)
+
+        
+def printfooddata(cury):
+    gupsikfont = getfont(___noto_sans, 60)
+    biggupsikfont = getfont(___noto_sans, 80)
+    textfont = getfont(___noto_sans, 30)
+    cury = printmultiplelines('중식', 40, 1030, cury, biggupsikfont, (0, 0, 0))
+    jungsiklist = []
+    for i in range(0, int(len(jungsik) / 2 + 1)):
+        if i * 2 + 1 >= int(len(jungsik)) :
+            jungsiklist.append(str(jungsik[i * 2]))
+            continue
+        jungsiklist.append(str(jungsik[i * 2] + " " + jungsik[i * 2 + 1]))
+
+    print(jungsiklist)
+    for line in jungsiklist:
+        w, h = gupsikfont.getsize(line)
+        cury = printmultiplelines(line, 17, 1030, cury, gupsikfont, (0, 0, 0))
+
+
+    return cury
         
     
 
 def imageinit(): #이미지의 크기를 미리 결정
     imagex = 2000
-    imagey = 1300
+    imagey = 2000
     #for key, value in stddic.items():
         #print(key)
         #print(value)
@@ -239,12 +337,18 @@ def imageinit(): #이미지의 크기를 미리 결정
 
 # cursor position init
 
+jungsik = get_diet(2, tomorrow.strftime("%Y.%m.%d"), 4)
+jungsik = jungsik.split("\n")
+
+sucksik = get_diet(3, tomorrow.strftime("%Y.%m.%d"), 4)
+sucksik = sucksik.split("\n")
+#print(jungsik)
+#jungsik = ['무오이장아찌아아아아아아아아아아아아아아아아아아', '혼합잡곡밥(곡잡곡)', '감자양파국', '파채불고기', '하트연근전', '상추쌈&쌈장', '배추김치']
 dataquery()
 imagex, imagey = imageinit()
 img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
 dt = ImageDraw.Draw(img) # make text draw cursor
 setupperpart()
 settomorrowdata()
-
 img.show()
 img.save('output.png')
