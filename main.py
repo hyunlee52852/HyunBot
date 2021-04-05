@@ -71,7 +71,9 @@ _TIMETABLE = [
     [_LIT, _ENG, _MAT, _SYS, _SYS, _SPE, _SPE],
     [_DTA, _JAP, _MTB, _IFA, _ENG, _LIT, _MAT],
     [_SYS, _SYS, _MTA, _SPC, _JAP, _MUS, _DTB],
-    [_MAT, _LIT, _IND, _SYS, _SYS, _JAP, _SCF]
+    [_MAT, _LIT, _IND, _SYS, _SYS, _JAP, _SCF],
+    [_NON, _NON, _NON, _NON, _NON, _NON, _NON],
+    [_NON, _NON, _NON, _NON, _NON, _NON, _NON]
 ]
 #시간 변수 모음
 
@@ -196,12 +198,12 @@ def dataquery():
 
         #print(date + " " + period + " " + desc)
         stddic.setdefault(date,[]).append((period, desc, dur))
-
 def setupperpart():
     upper_part = Image.open('Image Files\\Upper bar.png' , 'r')
 
     #상단 이미지 png로 불러오기
     upper_part = Image.composite(upper_part, Image.new('RGB', upper_part.size, 'white'), upper_part)
+
     img.paste(upper_part, (0, 0))
     # 월, 일, 요일 출력
     monthft = getfont(___d2coding_font, 100)
@@ -255,8 +257,8 @@ def setupperpart():
 
 
 def settomorrowdata():
-    globalx = 50
-    globaly = 300
+    curx = 50
+    cury = 300
     tomorrowstr = str(tomorrow.strftime("%Y-%m-%d"))
     kyoshifont = getfont(___noto_sans_bold, 40)
     textfont = getfont(___noto_sans, 40)
@@ -265,16 +267,16 @@ def settomorrowdata():
     kyoshi = '교시'
     temptomorrow = tomorrow
     if(tomorrow.weekday() > 4):
-        globaly = 300
-        printmultiplelines("주말입니다! 다음 주 월요일 일정을 확인하세요.", 30, 50, globaly, periodfont, (0, 0, 0))
+        cury = 300
+        printmultiplelines("주말입니다! 다음 주 월요일 일정을 확인하세요.", 30, 50, cury, periodfont, (0, 0, 0))
         temptomorrow += timedelta(days = 7 - tomorrow.weekday())
-        globaly += 130
-        linedashed(0, globaly, 2000, globaly, 40, 1.5, 10)
-        globaly += 50
+        cury += 130
+        linedashed(0, cury, 2000, cury, 40, 1.5, 10)
+        cury += 50
         tomorrowstr = str(temptomorrow.strftime("%Y-%m-%d"))
-    tempy = globaly
-    gupsiky = printfooddata(globaly)
-    globaly = printmultiplelines(kyoshi, 40, 50, globaly + 10, kyoshifont, (0, 0, 0))
+    tempy = cury
+    gupsiky = printfooddata(cury)
+    cury = printmultiplelines(kyoshi, 40, 50, cury + 10, kyoshifont, (0, 0, 0))
     
     perioddata = [[] for i in range(10)]
     if(tomorrowstr in stddic):
@@ -283,42 +285,53 @@ def settomorrowdata():
 
     #print(perioddata)
     for curperiod in range(0, 8):
-        printmultiplelines(str(curperiod), 40, 50, globaly, periodfont, (0, 0, 0))
+        printmultiplelines(str(curperiod), 40, 50, cury, periodfont, (0, 0, 0))
         cursub = str(_TIMETABLE[temptomorrow.weekday()][curperiod - 1])
         if(curperiod == 0):
             cursub = 'HR'
-        printmultiplelines(cursub, 40, 100, globaly + 15, periodnamefont, (0, 0, 0))
-        beforey = globaly
+        printmultiplelines(cursub, 40, 100, cury + 15, periodnamefont, (0, 0, 0))
+        beforey = cury
         for dat in perioddata[curperiod]:
-            globaly = printmultiplelines(dat, 25, 230, globaly + 30, textfont, (0, 0, 0))
-            #print(globaly)
-        if(globaly - beforey <= 70):
-            globaly = beforey + 100
-    globaly += 20
+            cury = printmultiplelines(dat, 25, 230, cury + 30, textfont, (0, 0, 0))
+            #print(cury)
+        if(cury - beforey <= 70):
+            cury = beforey + 100
+    cury += 20
 
-    globaly = max(globaly, gupsiky)
-    linedashed(1000, tempy, 1000, globaly, 20, 2, 5)
-    linedashed(0, globaly, 2000, globaly, 40, 1, 5)
+    cury = max(cury, gupsiky)
+    linedashed(1000, tempy, 1000, cury, 20, 2, 5)
+    linedashed(0, cury, 2000, cury, 40, 1, 5)
+    return cury
 
 def splitfooddata(originlist):
     outputlist = []
-    for i in range(0, int(len(originlist) / 2 + 1)):
-        if i * 2 + 1 >= int(len(originlist)) :
-            outputlist.append(str(originlist[i * 2]))
-            continue
-        outputlist.append(str(originlist[i * 2] + ", " + originlist[i * 2 + 1] + ","))
+    for i in range(0, int(len(originlist) / 2)):
+        outputlist.append(str(originlist[i * 2] + ", " + originlist[i * 2 + 1]))
     
     return outputlist
+
+
 def printfooddata(cury):
     gupsikfont = getfont(___noto_sans, 50)
     biggupsikfont = getfont(___noto_sans, 80)
     textfont = getfont(___noto_sans, 30)
+    temptomorrow = tomorrow
+    print(tomorrow.weekday())
+    #주말인 경우 다음 주 월요일 체크
+    if temptomorrow.weekday() > 4 :
+        temptomorrow += timedelta(days = 7 - tomorrow.weekday())
+    jungsik = get_diet(2, temptomorrow.strftime("%Y.%m.%d"), temptomorrow.weekday())
+    jungsik = jungsik.split("\n")
+
+    sucksik = get_diet(3, temptomorrow.strftime("%Y.%m.%d"), temptomorrow.weekday())
+    sucksik = sucksik.split("\n")
+
     cury = printmultiplelines('중식', 40, 1030, cury, biggupsikfont, (0, 0, 0))
     jungsiklist = splitfooddata(jungsik)
     print(jungsiklist)
     for line in jungsiklist:
         w, h = gupsikfont.getsize(line)
-        cury = printmultiplelines(line, 17, 1030, cury, gupsikfont, (0, 0, 0))
+        cury = printmultiplelines(line, 20, 1030, cury, gupsikfont, (0, 0, 0))
     cury += 20
     linedashed(1010, cury, 19900, cury, 10, 2, 2)
     cury = printmultiplelines('석식', 40, 1030, cury, biggupsikfont, (0, 0, 0))
@@ -326,30 +339,76 @@ def printfooddata(cury):
     print(sucksiklist)
     for line in sucksiklist:
         w, h = gupsikfont.getsize(line)
-        cury = printmultiplelines(line, 17, 1030, cury, gupsikfont, (0, 0, 0))
+        cury = printmultiplelines(line, 20, 1030, cury, gupsikfont, (0, 0, 0))
     cury += 20
     return cury
         
     
+def setbottompart(cury):
+    lower_part = Image.open('Image Files\Down bar.png', 'r')
+    lower_part = Image.composite(lower_part, Image.new('RGB', lower_part.size, 'white'), lower_part)
+
+    datefont = getfont(___d2coding_font, 150)
+    datefontsmall = getfont(___d2coding_font, 50)
+    textfont = getfont(___noto_sans, 40)
+    periodfont = getfont(___noto_sans, 80)
+    periodnamefont = getfont(___noto_sans, 60)
+
+    for key, value in stddic.items():
+        curdate = datetime.date(datetime.strptime(key, '%Y-%m-%d'))
+
+        monthstr = curdate.strftime('%b').upper()
+        daystr = curdate.strftime('%d')
+        weekday = curdate.weekday()
+        weekdaystr = curdate.strftime('%a').upper()
+
+        perioddata = [[] for i in range(10)]
+
+        if(curdate <= tomorrow):
+            continue
+
+        cury += 20
+        img.paste(lower_part, (0, cury))
+        cury = printmultiplelines(monthstr + " " + weekdaystr, 20, 5, cury, datefontsmall, (255, 255, 255))
+        tempy = printmultiplelines(daystr, 20, 0, cury, datefont, (0, 0, 0))
+
+        for data in value:
+            curperiod = int(data[0])
+            if curperiod > 7:
+                curperiod = 0
+            perioddata[curperiod].append(data[1])
+
+        for period in range(0, 8):
+            if not perioddata[period]:
+                continue
+            print(perioddata[period])
+            cursub = str(_TIMETABLE[weekday][period - 1])
+            if period == 0:
+                cursub = "HR"
+            printmultiplelines(str(period), 30, 200, cury, periodfont, (0, 0, 0))
+            printmultiplelines(cursub, 30, 250, cury + 15, periodnamefont, (0, 0, 0))
+            for data in perioddata[period]:
+                cury = printmultiplelines(data, 30, 400, cury + 25, textfont, (0, 0, 0))
+
+
+        print(tempy)
+        print(cury)
+        cury = max(tempy, cury)
+        cury += 20
+    return cury
+
 
 def imageinit(): #이미지의 크기를 미리 결정
     imagex = 2000
-    imagey = 2000
+    imagey = 10000
     #for key, value in stddic.items():
         #print(key)
         #print(value)
     return imagex, imagey
 
-    
-
-
 # cursor position init
 
-jungsik = get_diet(2, tomorrow.strftime("%Y.%m.%d"), 4)
-jungsik = jungsik.split("\n")
 
-sucksik = get_diet(3, tomorrow.strftime("%Y.%m.%d"), 4)
-sucksik = sucksik.split("\n")
 #print(jungsik)
 #jungsik = ['무오이장아찌아아아아아아아아아아아아아아아아아아', '혼합잡곡밥(곡잡곡)', '감자양파국', '파채불고기', '하트연근전', '상추쌈&쌈장', '배추김치']
 dataquery()
@@ -357,6 +416,9 @@ imagex, imagey = imageinit()
 img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
 dt = ImageDraw.Draw(img) # make text draw cursor
 setupperpart()
-settomorrowdata()
-img.show()
-img.save('output.png')
+globaly = settomorrowdata()
+globaly = setbottompart(globaly)
+
+finalimg =  img.crop((0, 0, imagex, globaly))
+finalimg.show()
+finalimg.save('output.png')
