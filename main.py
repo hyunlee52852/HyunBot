@@ -258,8 +258,8 @@ def settomorrowdata():
     globalx = 50
     globaly = 300
     tomorrowstr = str(tomorrow.strftime("%Y-%m-%d"))
-    kyoshifont = getfont(___noto_sans, 40)
-    textfont = getfont(___noto_sans, 30)
+    kyoshifont = getfont(___noto_sans_bold, 40)
+    textfont = getfont(___noto_sans, 40)
     periodfont = getfont(___noto_sans, 80)
     periodnamefont = getfont(___noto_sans, 60)
     kyoshi = '교시'
@@ -272,9 +272,9 @@ def settomorrowdata():
         linedashed(0, globaly, 2000, globaly, 40, 1.5, 10)
         globaly += 50
         tomorrowstr = str(temptomorrow.strftime("%Y-%m-%d"))
-    tempy = globaly - 30
+    tempy = globaly
     gupsiky = printfooddata(globaly)
-    globaly = printmultiplelines(kyoshi, 40, 50, globaly, kyoshifont, (0, 0, 0))
+    globaly = printmultiplelines(kyoshi, 40, 50, globaly + 10, kyoshifont, (0, 0, 0))
     
     perioddata = [[] for i in range(10)]
     if(tomorrowstr in stddic):
@@ -290,36 +290,44 @@ def settomorrowdata():
         printmultiplelines(cursub, 40, 100, globaly + 15, periodnamefont, (0, 0, 0))
         beforey = globaly
         for dat in perioddata[curperiod]:
-            globaly = printmultiplelines(dat, 30, 230, globaly + 30, textfont, (0, 0, 0))
+            globaly = printmultiplelines(dat, 25, 230, globaly + 30, textfont, (0, 0, 0))
             #print(globaly)
         if(globaly - beforey <= 70):
             globaly = beforey + 100
     globaly += 20
 
     globaly = max(globaly, gupsiky)
-
     linedashed(1000, tempy, 1000, globaly, 20, 2, 5)
     linedashed(0, globaly, 2000, globaly, 40, 1, 5)
 
-        
+def splitfooddata(originlist):
+    outputlist = []
+    for i in range(0, int(len(originlist) / 2 + 1)):
+        if i * 2 + 1 >= int(len(originlist)) :
+            outputlist.append(str(originlist[i * 2]))
+            continue
+        outputlist.append(str(originlist[i * 2] + ", " + originlist[i * 2 + 1] + ","))
+    
+    return outputlist
 def printfooddata(cury):
-    gupsikfont = getfont(___noto_sans, 60)
+    gupsikfont = getfont(___noto_sans, 50)
     biggupsikfont = getfont(___noto_sans, 80)
     textfont = getfont(___noto_sans, 30)
     cury = printmultiplelines('중식', 40, 1030, cury, biggupsikfont, (0, 0, 0))
-    jungsiklist = []
-    for i in range(0, int(len(jungsik) / 2 + 1)):
-        if i * 2 + 1 >= int(len(jungsik)) :
-            jungsiklist.append(str(jungsik[i * 2]))
-            continue
-        jungsiklist.append(str(jungsik[i * 2] + " " + jungsik[i * 2 + 1]))
-
+    jungsiklist = splitfooddata(jungsik)
     print(jungsiklist)
     for line in jungsiklist:
         w, h = gupsikfont.getsize(line)
         cury = printmultiplelines(line, 17, 1030, cury, gupsikfont, (0, 0, 0))
-
-
+    cury += 20
+    linedashed(1010, cury, 19900, cury, 10, 2, 2)
+    cury = printmultiplelines('석식', 40, 1030, cury, biggupsikfont, (0, 0, 0))
+    sucksiklist = splitfooddata(sucksik)
+    print(sucksiklist)
+    for line in sucksiklist:
+        w, h = gupsikfont.getsize(line)
+        cury = printmultiplelines(line, 17, 1030, cury, gupsikfont, (0, 0, 0))
+    cury += 20
     return cury
         
     
