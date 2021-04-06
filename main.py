@@ -30,12 +30,12 @@ insertcursor = _db.cursor(pymysql.cursors.Cursor)
 
 #SQL 구문 모음
 _readtest = "SELECT * FROM %s;"
-_select_sorted_data = "SELECT date, period, description, duration FROM %s ORDER BY date ASC, period ASC;"
+_select_sorted_data = "SELECT date, period, description, duration, changeperiod FROM %s ORDER BY date ASC, period ASC;"
 _adddata = 'INSERT INTO %s'
 #------------
 
 #SQL에 쓰이는 변수 모음
-__table_name = 'test'
+__table_name = 'schedule'
 __select = 'SELECT'
 
 #------------
@@ -71,7 +71,7 @@ _TIMETABLE = [
     [_LIT, _ENG, _MAT, _SYS, _SYS, _SPE, _SPE],
     [_DTA, _JAP, _MTB, _IFA, _ENG, _LIT, _MAT],
     [_SYS, _SYS, _MTA, _SPC, _JAP, _MUS, _DTB],
-    [_MAT, _LIT, _IND, _SYS, _SYS, _JAP, _SCF],
+    [_MAT, _LIT, _IND, _SYS, _SYS, _ENG, _SCF],
     [_NON, _NON, _NON, _NON, _NON, _NON, _NON],
     [_NON, _NON, _NON, _NON, _NON, _NON, _NON]
 ]
@@ -183,6 +183,7 @@ def dataquery():
         period = None
         desc = None
         dur = None
+        changeperiod = None
         for key, value in dic.items():
             if isinstance(value, type(datetime.date)):
                 value = value.strftime("%m/%d")
@@ -195,9 +196,11 @@ def dataquery():
                 desc = value
             elif key == 'duration':
                 dur = value
+            elif key == 'changeperiod':
+                changeperiod = value
 
         #print(date + " " + period + " " + desc)
-        stddic.setdefault(date,[]).append((period, desc, dur))
+        stddic.setdefault(date,[]).append((period, desc, dur, changeperiod))
 def setupperpart():
     upper_part = Image.open('Image Files\\Upper bar.png' , 'r')
 
@@ -279,16 +282,25 @@ def settomorrowdata():
     cury = printmultiplelines(kyoshi, 40, 50, cury + 10, kyoshifont, (0, 0, 0))
     
     perioddata = [[] for i in range(10)]
+    changeperioddata = [[] for i in range(10)]
+
     if(tomorrowstr in stddic):
         for dat in stddic[tomorrowstr]:
             perioddata[int(dat[0])].append(dat[1])
+            changeperioddata[int(dat[0])] = dat[3]
+            print(dat[3])
+
 
     #print(perioddata)
     for curperiod in range(0, 8):
         printmultiplelines(str(curperiod), 40, 50, cury, periodfont, (0, 0, 0))
         cursub = str(_TIMETABLE[temptomorrow.weekday()][curperiod - 1])
+
         if(curperiod == 0):
             cursub = 'HR'
+        if changeperioddata[curperiod]:
+            cursub = str(changeperioddata[curperiod])
+        
         printmultiplelines(cursub, 40, 100, cury + 15, periodnamefont, (0, 0, 0))
         beforey = cury
         for dat in perioddata[curperiod]:
@@ -299,7 +311,7 @@ def settomorrowdata():
     cury += 20
 
     cury = max(cury, gupsiky)
-    linedashed(1000, tempy, 1000, cury, 20, 2, 5)
+    linedashed(1000, tempy + 10, 1000, cury, 20, 2, 5)
     linedashed(0, cury, 2000, cury, 40, 1, 5)
     return cury
 
@@ -347,7 +359,9 @@ def printfooddata(cury):
 def setbottompart(cury):
     lower_part = Image.open('Image Files\Down bar.png', 'r')
     lower_part = Image.composite(lower_part, Image.new('RGB', lower_part.size, 'white'), lower_part)
-
+    lower_part_flipped = Image.open('Image Files\Down bar Flipped.png', 'r')
+    lower_part_flipped = Image.composite(lower_part_flipped, Image.new('RGB', lower_part_flipped.size, 'white'), lower_part_flipped)
+    
     datefont = getfont(___d2coding_font, 150)
     datefontsmall = getfont(___d2coding_font, 50)
     textfont = getfont(___noto_sans, 40)
@@ -355,6 +369,7 @@ def setbottompart(cury):
     periodnamefont = getfont(___noto_sans, 60)
 
     for key, value in stddic.items():
+
         curdate = datetime.date(datetime.strptime(key, '%Y-%m-%d'))
 
         monthstr = curdate.strftime('%b').upper()
@@ -363,17 +378,52 @@ def setbottompart(cury):
         weekdaystr = curdate.strftime('%a').upper()
 
         perioddata = [[] for i in range(10)]
+        dur = -1
+        durdesc = None
+        for data in value:
+            tempdur = int(data[2])
+            if int(tempdur) > 0:
+                dur = ((curdate + timedelta(days=tempdur)) - tomorrow).days
+                durdesc = str(data[1])
+
+        if(curdate <= tomorrow and dur < 0):
+            continue
+        
+        print(dur)
+        durdate = tomorrow + timedelta(days=dur)
+
+        cury += 20
+        img.paste(lower_part, (0, cury))
+        if(dur >= 0):
+            img.paste(lower_part_flipped, (200, cury))
+            durmonthstr = durdate.strftime('%b').upper()
+            durweekdaystr = durdate.strftime('%a').upper()
+            durdaystr = durdate.strftime('%d')
+            printmultiplelines("~", 20, 165, cury + 50, periodfont, (0, 0, 0))
+            printmultiplelines(durmonthstr + " " + durweekdaystr, 20, 220, cury, datefontsmall, (255, 255, 255))
+            cury = printmultiplelines(monthstr + " " + weekdaystr, 20, 5, cury, datefontsmall, (255, 255, 255))
+            printmultiplelines(durdesc, 30, 400, cury + 20, periodnamefont, (0, 0, 0))
+            printmultiplelines(daystr, 20, 0, cury, datefont, (0, 0, 0))
+            cury = printmultiplelines(durdaystr, 20, 220, cury, datefont, (0, 0, 0))
 
         if(curdate <= tomorrow):
             continue
 
-        cury += 20
-        img.paste(lower_part, (0, cury))
-        cury = printmultiplelines(monthstr + " " + weekdaystr, 20, 5, cury, datefontsmall, (255, 255, 255))
-        tempy = printmultiplelines(daystr, 20, 0, cury, datefont, (0, 0, 0))
+        tempy = cury
+
+        if(dur == -1):
+            cury = printmultiplelines(monthstr + " " + weekdaystr, 20, 5, cury, datefontsmall, (255, 255, 255))
+            tempy = printmultiplelines(daystr, 20, 0, cury, datefont, (0, 0, 0))
+
+        changeperioddata = [[] for i in range(10)]
+
+        for dat in stddic[key]:
+            changeperioddata[int(dat[0])] = dat[3]
 
         for data in value:
             curperiod = int(data[0])
+            if int(data[2]) > 0:
+                continue
             if curperiod > 7:
                 curperiod = 0
             perioddata[curperiod].append(data[1])
@@ -381,18 +431,17 @@ def setbottompart(cury):
         for period in range(0, 8):
             if not perioddata[period]:
                 continue
-            print(perioddata[period])
             cursub = str(_TIMETABLE[weekday][period - 1])
             if period == 0:
                 cursub = "HR"
+            
+            if changeperioddata[period]:
+                cursub = changeperioddata[period]
+            
             printmultiplelines(str(period), 30, 200, cury, periodfont, (0, 0, 0))
             printmultiplelines(cursub, 30, 250, cury + 15, periodnamefont, (0, 0, 0))
             for data in perioddata[period]:
-                cury = printmultiplelines(data, 30, 400, cury + 25, textfont, (0, 0, 0))
-
-
-        print(tempy)
-        print(cury)
+                cury = printmultiplelines(data, 45, 400, cury + 25, textfont, (0, 0, 0))
         cury = max(tempy, cury)
         cury += 20
     return cury
@@ -408,10 +457,8 @@ def imageinit(): #이미지의 크기를 미리 결정
 
 # cursor position init
 
-
-#print(jungsik)
-#jungsik = ['무오이장아찌아아아아아아아아아아아아아아아아아아', '혼합잡곡밥(곡잡곡)', '감자양파국', '파채불고기', '하트연근전', '상추쌈&쌈장', '배추김치']
 dataquery()
+print(stddic)
 imagex, imagey = imageinit()
 img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
 dt = ImageDraw.Draw(img) # make text draw cursor
