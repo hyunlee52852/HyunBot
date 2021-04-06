@@ -5,7 +5,9 @@ pillow (pip install pillow)
 numpy (pip install numpy)
 pymysql (pip install pymysql)
 daytime (pip install daytime)
-
+textwrap (pip install textwrap)
+requests (pip install requests)
+beautifulsoup4 (pip install beautifulsoup4)
 
 TODO:
 SQL에 연결 후 내용 받아오기 - DONE
