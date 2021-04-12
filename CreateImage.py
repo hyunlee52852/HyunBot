@@ -19,7 +19,7 @@ pw = logindata[1]
 _db = pymysql.connect(
     user=id, 
     passwd=pw, 
-    host='34.82.97.92', 
+    host='34.83.145.171', 
     db='schedule', 
     charset='utf8'
 )
