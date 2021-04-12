@@ -357,9 +357,9 @@ def printfooddata(cury):
         
     
 def setbottompart(cury):
-    lower_part = Image.open('Image_Files/down bar.png', 'r')
+    lower_part = Image.open('Image_Files/down_bar.png', 'r')
     lower_part = Image.composite(lower_part, Image.new('RGB', lower_part.size, 'white'), lower_part)
-    lower_part_flipped = Image.open('Image_Files/Down bar Flipped.png', 'r')
+    lower_part_flipped = Image.open('Image_Files/Down_bar_Flipped.png', 'r')
     lower_part_flipped = Image.composite(lower_part_flipped, Image.new('RGB', lower_part_flipped.size, 'white'), lower_part_flipped)
     
     datefont = getfont(___d2coding_font, 150)
