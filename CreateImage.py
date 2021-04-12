@@ -202,7 +202,7 @@ def dataquery():
         #print(date + " " + period + " " + desc)
         stddic.setdefault(date,[]).append((period, desc, dur, changeperiod))
 def setupperpart():
-    upper_part = Image.open('Image_Files\\Upper bar.png' , 'r')
+    upper_part = Image.open('Image_Files/Upper bar.png' , 'r')
 
     #상단 이미지 png로 불러오기
     upper_part = Image.composite(upper_part, Image.new('RGB', upper_part.size, 'white'), upper_part)
@@ -357,9 +357,9 @@ def printfooddata(cury):
         
     
 def setbottompart(cury):
-    lower_part = Image.open('Image_Files\Down bar.png', 'r')
+    lower_part = Image.open('Image_Files/down bar.png', 'r')
     lower_part = Image.composite(lower_part, Image.new('RGB', lower_part.size, 'white'), lower_part)
-    lower_part_flipped = Image.open('Image_Files\Down bar Flipped.png', 'r')
+    lower_part_flipped = Image.open('Image_Files/Down bar Flipped.png', 'r')
     lower_part_flipped = Image.composite(lower_part_flipped, Image.new('RGB', lower_part_flipped.size, 'white'), lower_part_flipped)
     
     datefont = getfont(___d2coding_font, 150)
