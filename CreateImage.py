@@ -86,10 +86,10 @@ globalx = 0
 globaly = 0
 
 #폰트 모음
-___d2coding_font = "fonts\\D2coding\\D2CodingLigature\\D2coding.ttf"
-___d2coding_font_bold = "fonts\\D2coding\\D2CodingLigature\\D2codingBold.ttf"
-___noto_sans_bold = "fonts\\Noto_Sans_KR\\NotoSansKR-Bold.otf"
-___noto_sans = "fonts\\Noto_Sans_KR\\NotoSansKR-Medium.otf"
+___d2coding_font = "fonts/D2coding/D2CodingLigature/D2coding.ttf"
+___d2coding_font_bold = "fonts/D2coding/D2CodingLigature/D2codingBold.ttf"
+___noto_sans_bold = "fonts/Noto_Sans_KR/NotoSansKR-Bold.otf"
+___noto_sans = "fonts/Noto_Sans_KR/NotoSansKR-Medium.otf"
 #-----------
 
 #텍스트 관련 함수 모음
