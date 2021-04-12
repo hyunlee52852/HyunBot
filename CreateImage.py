@@ -304,7 +304,7 @@ def settomorrowdata():
         printmultiplelines(cursub, 40, 100, cury + 15, periodnamefont, (0, 0, 0))
         beforey = cury
         for dat in perioddata[curperiod]:
-            cury = printmultiplelines(dat, 25, 230, cury + 30, textfont, (0, 0, 0))
+            cury = printmultiplelines(dat, 20, 230, cury + 30, textfont, (0, 0, 0))
             #print(cury)
         if(cury - beforey <= 70):
             cury = beforey + 100
