@@ -8,14 +8,21 @@ app = Flask(__name__)
 @app.route('/Check_Schedule', methods=['POST'])
 def schedule():
     
-    dataSend = 
-                {
+    dataSend =  {
             "version": "2.0",
             "template": {
                 "outputs": [
+                    
+                    {
+                        "simpleText": {
+                            "text" : "내일 일정입니다!"
+                            }
+                           
+                        }
+                    ,
                     {
                         "simpleImage": {
-                            "imageUrl": "http://k.kakaocdn.net/dn/83BvP/bl20duRC1Q1/lj3JUcmrzC53YIjNDkqbWK/i_6piz1p.jpg",
+                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
                             "altText": "보물상자입니다"
                         }
                     }
