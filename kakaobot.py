@@ -2,12 +2,43 @@
  
 from flask import Flask, render_template, jsonify, request
 import sys
- 
+import CreateImage
+
+
 app = Flask(__name__)
+
+@app.route('/Reload_Schedule', methods=['POST'])
+def reload():
+    CreateImage.makeimage()
+
+    dataSend =  {
+            "version": "2.0",
+            "template": {
+                "outputs": [
+                    
+                    {
+                        "simpleText": {
+                            "text" : "아래 이미지로 재설정 완료했습니다!"
+                            }
+                           
+                        }
+                    ,
+                    {
+                        "simpleImage": {
+                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
+                            "altText": "에러"
+                        }
+                    }
+                ]
+            }
+        }
+        
+    return jsonify(dataSend)
+
 
 @app.route('/Check_Schedule', methods=['POST'])
 def schedule():
-    
+
     dataSend =  {
             "version": "2.0",
             "template": {
@@ -23,7 +54,7 @@ def schedule():
                     {
                         "simpleImage": {
                             "imageUrl": "http://34.83.145.171:9900/static/output.png",
-                            "altText": "보물상자입니다"
+                            "altText": "에러"
                         }
                     }
                 ]
