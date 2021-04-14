@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/Reload_Schedule', methods=['POST'])
 def reload():
-    CreateImage.makeimage()
+    CreateImage()
 
     dataSend =  {
             "version": "2.0",
@@ -32,7 +32,7 @@ def reload():
                 ]
             }
         }
-        
+
     return jsonify(dataSend)
 
 

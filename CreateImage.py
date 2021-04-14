@@ -456,20 +456,16 @@ def imageinit(): #이미지의 크기를 미리 결정
     return imagex, imagey
 
 # cursor position init
-def makeimage():
-    dataquery()
-    print(stddic)
-    imagex, imagey = imageinit()
-    img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
-    dt = ImageDraw.Draw(img) # make text draw cursor
-    setupperpart()
-    globaly = settomorrowdata()
-    globaly = setbottompart(globaly)
 
-    finalimg =  img.crop((0, 0, imagex, globaly))
-    finalimg.show()
-    finalimg.save('static/output.png')
+imagex, imagey = imageinit()
+img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
+dataquery()
+dt = ImageDraw.Draw(img) # make text draw cursor
+setupperpart()
+globaly = settomorrowdata()
+globaly = setbottompart(globaly)
 
-makeimage()
-
+finalimg =  img.crop((0, 0, imagex, globaly))
+finalimg.show()
+finalimg.save('static/output.png')
     
