@@ -1,1 +1,1 @@
-mysql -h 34.82.97.92 -u hyun -p
+mysql -h 34.83.145.171 -u hyun -p

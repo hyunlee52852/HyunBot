@@ -468,4 +468,4 @@ globaly = setbottompart(globaly)
 
 finalimg =  img.crop((0, 0, imagex, globaly))
 finalimg.show()
-finalimg.save('output.png')
+finalimg.save('static/output.png')
