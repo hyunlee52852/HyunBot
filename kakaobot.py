@@ -2,25 +2,16 @@
  
 from flask import Flask, render_template, jsonify, request
 import sys
-<<<<<<< HEAD
-=======
-import CreateImage
 
 flag = 0
->>>>>>> 02733689b95fae8fed250479009386d1292a875b
+
 
 app = Flask(__name__)
 
 @app.route('/Reload_Schedule', methods=['POST'])
 def reload():
-<<<<<<< HEAD
-=======
-    if(flag == 0):
-        CreateImage()
-        flag = 1
->>>>>>> 02733689b95fae8fed250479009386d1292a875b
 
-    dataSend =  {
+    dataSend = {
             "version": "2.0",
             "template": {
                 "outputs": [
