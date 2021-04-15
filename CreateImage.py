@@ -444,7 +444,9 @@ def createimage():
     global today
     global tomorrow
     global sat_day
-
+    
+    cursor = _db.cursor(pymysql.cursors.DictCursor)
+    
     today = date.today()
     tomorrow = today + timedelta(days = 1)
     sat_day = date(2022, 11, 17)
