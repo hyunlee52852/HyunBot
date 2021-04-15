@@ -8,9 +8,8 @@ app = Flask(__name__)
 
 @app.route('/Reload_Schedule', methods=['POST'])
 def reload():
-
-    CreateImage.createimage()
     
+    CreateImage.createimage()
     dataSend =  {
             "version": "2.0",
             "template": {
@@ -69,5 +68,3 @@ def home():
  
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=9900,debug=True)
-
-

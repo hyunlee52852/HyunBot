@@ -464,6 +464,11 @@ def createimage():
     global dt
     global globaly
     global globalx
+    global cursor
+    global insertcursor
+
+    cursor = _db.cursor(pymysql.cursors.DictCursor)
+    insertcursor = _db.cursor(pymysql.cursors.Cursor) 
 
     imagex, imagey = imageinit()
     img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
@@ -476,70 +481,9 @@ def createimage():
     finalimg =  img.crop((0, 0, imagex, globaly))
     finalimg.show()
     finalimg.save('static/output.png')
+    cursor.close()
+    insertcursor.close()
 
-### -------------------- 카카오톡 봇 영역 -------------------- ###
-
-app = Flask(__name__)
-
-@app.route('/Reload_Schedule', methods=['POST'])
-def reload():
-
-    dataSend =  {
-            "version": "2.0",
-            "template": {
-                "outputs": [
-                    
-                    {
-                        "simpleText": {
-                            "text" : "아래 이미지로 재설정 완료했습니다!"
-                            }
-                           
-                        }
-                    ,
-                    {
-                        "simpleImage": {
-                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
-                            "altText": "에러"
-                        }
-                    }
-                ]
-            }
-        }
-
-    return jsonify(dataSend)
-
-
-@app.route('/Check_Schedule', methods=['POST'])
-def schedule():
-
-    dataSend =  {
-            "version": "2.0",
-            "template": {
-                "outputs": [
-                    
-                    {
-                        "simpleText": {
-                            "text" : "내일 일정입니다!"
-                            }
-                           
-                        }
-                    ,
-                    {
-                        "simpleImage": {
-                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
-                            "altText": "에러"
-                        }
-                    }
-                ]
-            }
-        }
-    
-    return jsonify(dataSend)
-
-@app.route('/')
-def home():
-    return render_template('img.html')
- 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=9900,debug=True)
     createimage()
+    
