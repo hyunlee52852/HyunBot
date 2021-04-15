@@ -462,7 +462,7 @@ def createimage():
     dataquery()
     _db.close()
     cursor.close()
-    
+
     dt = ImageDraw.Draw(img) # make text draw cursor
     setupperpart()
     globaly = settomorrowdata()
@@ -491,5 +491,76 @@ sat_day = date(2022, 11, 17)
 globalx = 0
 globaly = 0
 
+
+# coding = utf-8
+ 
+# -----------카카오톡 봇 -------------
+
+app = Flask(__name__)
+
+@app.route('/Reload_Schedule', methods=['POST'])
+def reload():
+
+    createimage()
+    print("I am getting reloaded")
+    
+    dataSend =  {
+            "version": "2.0",
+            "template": {
+                "outputs": [
+                    
+                    {
+                        "simpleText": {
+                            "text" : "아래 이미지로 재설정 완료했습니다!"
+                            }
+                           
+                        }
+                    ,
+                    {
+                        "simpleImage": {
+                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
+                            "altText": "에러"
+                        }
+                    }
+                ]
+            }
+        }
+
+    return jsonify(dataSend)
+
+
+@app.route('/Check_Schedule', methods=['POST'])
+def schedule():
+
+    dataSend =  {
+            "version": "2.0",
+            "template": {
+                "outputs": [
+                    
+                    {
+                        "simpleText": {
+                            "text" : "내일 일정입니다!"
+                            }
+                           
+                        }
+                    ,
+                    {
+                        "simpleImage": {
+                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
+                            "altText": "에러"
+                        }
+                    }
+                ]
+            }
+        }
+    
+    return jsonify(dataSend)
+
+@app.route('/')
+def home():
+    return render_template('img.html')
+ 
 if __name__ == "__main__":
     createimage()
+    app.run(host='0.0.0.0', port=9900,debug=True)
+
