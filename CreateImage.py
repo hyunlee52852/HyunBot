@@ -459,35 +459,30 @@ def createimage():
     finalimg =  img.crop((0, 0, imagex, globaly))
     finalimg.show()
     finalimg.save('static/output.png')
-
-    cursor.close()
-    insertcursor.close()
     return
 
+with open('password.txt') as f:
+    logindata = f.read().splitlines() 
+id = logindata[0]
+pw = logindata[1]
+
+#내 서버에 있는 DB에 연결
+_db = pymysql.connect(
+    user=id, 
+    passwd=pw, 
+    host='34.83.145.171', 
+    db='schedule', 
+    charset='utf8'
+)
+cursor = _db.cursor(pymysql.cursors.DictCursor)
+
+today = date.today()
+tomorrow = today + timedelta(days = 1)
+sat_day = date(2022, 11, 17)
+
+#글로벌 위치 변수 선언.
+globalx = 0
+globaly = 0
+
 if __name__ == "__main__":
-    #password.txt 파일에서 id와 pw를 가져온다
-    with open('password.txt') as f:
-        logindata = f.read().splitlines() 
-    id = logindata[0]
-    pw = logindata[1]
-
-    #내 서버에 있는 DB에 연결
-    _db = pymysql.connect(
-        user=id, 
-        passwd=pw, 
-        host='34.83.145.171', 
-        db='schedule', 
-        charset='utf8'
-    )
-    cursor = _db.cursor(pymysql.cursors.DictCursor)
-    
-    today = date.today()
-    tomorrow = today + timedelta(days = 1)
-    sat_day = date(2022, 11, 17)
-
-    #글로벌 위치 변수 선언.
-    globalx = 0
-    globaly = 0
-
-
     createimage()
