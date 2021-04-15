@@ -1,4 +1,0 @@
-import CreateImage
-
-
-CreateImage.

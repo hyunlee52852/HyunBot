@@ -478,4 +478,5 @@ def createimage():
 # cursor position init
 if __name__ == '__main__':
     createimage()
+    createimage()
 

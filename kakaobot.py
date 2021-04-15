@@ -8,7 +8,9 @@ app = Flask(__name__)
 
 @app.route('/Reload_Schedule', methods=['POST'])
 def reload():
+
     CreateImage.createimage()
+    
     dataSend =  {
             "version": "2.0",
             "template": {
