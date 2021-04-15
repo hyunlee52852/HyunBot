@@ -2,14 +2,13 @@
  
 from flask import Flask, render_template, jsonify, request
 import sys
+import CreateImage
 
 app = Flask(__name__)
 
 @app.route('/Reload_Schedule', methods=['POST'])
 def reload():
-
-    import CreateImage
-    
+    CreateImage.createimage()
     dataSend =  {
             "version": "2.0",
             "template": {
