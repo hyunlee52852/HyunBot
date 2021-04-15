@@ -11,26 +11,6 @@ import re
 from flask import Flask, render_template, jsonify, request
 import sys
 
-
-#password.txt 파일에서 id와 pw를 가져온다
-with open('password.txt') as f:
-    logindata = f.read().splitlines() 
-id = logindata[0]
-pw = logindata[1]
-
-#내 서버에 있는 DB에 연결
-_db = pymysql.connect(
-    user=id, 
-    passwd=pw, 
-    host='34.83.145.171', 
-    db='schedule', 
-    charset='utf8'
-)
-#커서 지정
-
-cursor = _db.cursor(pymysql.cursors.DictCursor)
-insertcursor = _db.cursor(pymysql.cursors.Cursor)
-
 #SQL 구문 모음
 _readtest = "SELECT * FROM %s;"
 _select_sorted_data = "SELECT date, period, description, duration, changeperiod FROM %s ORDER BY date ASC, period ASC;"
@@ -80,13 +60,6 @@ _TIMETABLE = [
 ]
 #시간 변수 모음
 
-today = date.today()
-tomorrow = today + timedelta(days = 1)
-sat_day = date(2022, 11, 17)
-
-#글로벌 위치 변수 선언.
-globalx = 0
-globaly = 0
 
 #폰트 모음
 ___d2coding_font = "fonts/D2coding/D2CodingLigature/D2coding.ttf"
@@ -178,6 +151,7 @@ def get_diet(code, ymd, weekday):
     return element
 
 def dataquery():
+    stddic.clear()
     cursor.execute(_select_sorted_data % (__table_name))
     result = cursor.fetchall()
     
@@ -457,6 +431,7 @@ def imageinit(): #이미지의 크기를 미리 결정
         #print(key)
         #print(value)
     return imagex, imagey
+
 def createimage():
     global imagex
     global imagey
@@ -466,10 +441,13 @@ def createimage():
     global globalx
     global cursor
     global insertcursor
+    global today
+    global tomorrow
+    global sat_day
 
-    cursor = _db.cursor(pymysql.cursors.DictCursor)
-    insertcursor = _db.cursor(pymysql.cursors.Cursor) 
-
+    today = date.today()
+    tomorrow = today + timedelta(days = 1)
+    sat_day = date(2022, 11, 17)
     imagex, imagey = imageinit()
     img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
     dataquery()
@@ -481,9 +459,35 @@ def createimage():
     finalimg =  img.crop((0, 0, imagex, globaly))
     finalimg.show()
     finalimg.save('static/output.png')
+
     cursor.close()
     insertcursor.close()
+    return
 
 if __name__ == "__main__":
-    createimage()
+    #password.txt 파일에서 id와 pw를 가져온다
+    with open('password.txt') as f:
+        logindata = f.read().splitlines() 
+    id = logindata[0]
+    pw = logindata[1]
+
+    #내 서버에 있는 DB에 연결
+    _db = pymysql.connect(
+        user=id, 
+        passwd=pw, 
+        host='34.83.145.171', 
+        db='schedule', 
+        charset='utf8'
+    )
+    cursor = _db.cursor(pymysql.cursors.DictCursor)
     
+    today = date.today()
+    tomorrow = today + timedelta(days = 1)
+    sat_day = date(2022, 11, 17)
+
+    #글로벌 위치 변수 선언.
+    globalx = 0
+    globaly = 0
+
+
+    createimage()
