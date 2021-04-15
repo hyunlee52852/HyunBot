@@ -444,15 +444,25 @@ def createimage():
     global today
     global tomorrow
     global sat_day
-    
+    global _db
+    _db = pymysql.connect(
+    user=id, 
+    passwd=pw, 
+    host='34.83.145.171', 
+    db='schedule', 
+    charset='utf8'
+    )
     cursor = _db.cursor(pymysql.cursors.DictCursor)
-    
+
     today = date.today()
     tomorrow = today + timedelta(days = 1)
     sat_day = date(2022, 11, 17)
     imagex, imagey = imageinit()
     img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
     dataquery()
+    _db.close()
+    cursor.close()
+    
     dt = ImageDraw.Draw(img) # make text draw cursor
     setupperpart()
     globaly = settomorrowdata()
@@ -469,14 +479,9 @@ id = logindata[0]
 pw = logindata[1]
 
 #내 서버에 있는 DB에 연결
-_db = pymysql.connect(
-    user=id, 
-    passwd=pw, 
-    host='34.83.145.171', 
-    db='schedule', 
-    charset='utf8'
-)
-cursor = _db.cursor(pymysql.cursors.DictCursor)
+global _db
+
+global cursor
 
 today = date.today()
 tomorrow = today + timedelta(days = 1)
