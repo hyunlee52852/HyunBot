@@ -7,40 +7,6 @@ import CreateImage
 
 app = Flask(__name__)
 
-@app.route('/Reload_Schedule', methods=['POST'])
-def reload():
-    CreateImage.__init__()
-    CreateImage.dataquery()
-    CreateImage.globaly = CreateImage.settomorrowdata()
-    CreateImage.globaly = setbottompart(CreateImage.globaly)
-    finalimg = CreateImage.img.crop((0, 0, imagex, globaly))
-    finalimg.save('static/output.png')
-
-    dataSend =  {
-            "version": "2.0",
-            "template": {
-                "outputs": [
-                    
-                    {
-                        "simpleText": {
-                            "text" : "아래 이미지로 재설정 완료했습니다!"
-                            }
-                           
-                        }
-                    ,
-                    {
-                        "simpleImage": {
-                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
-                            "altText": "에러"
-                        }
-                    }
-                ]
-            }
-        }
-
-    return jsonify(dataSend)
-
-
 @app.route('/Check_Schedule', methods=['POST'])
 def schedule():
 
