@@ -432,56 +432,15 @@ def imageinit(): #이미지의 크기를 미리 결정
         #print(value)
     return imagex, imagey
 
-def createimage():
-    global imagex
-    global imagey
-    global img
-    global dt
-    global globaly
-    global globalx
-    global cursor
-    global insertcursor
-    global today
-    global tomorrow
-    global sat_day
-    global _db
-    _db = pymysql.connect(
-    user=id, 
-    passwd=pw, 
-    host='34.83.145.171', 
-    db='schedule', 
-    charset='utf8'
-    )
-    cursor = _db.cursor(pymysql.cursors.DictCursor)
-
+def __init__():
     today = date.today()
     tomorrow = today + timedelta(days = 1)
     sat_day = date(2022, 11, 17)
+    globalx = 0
+    globaly = 0
     imagex, imagey = imageinit()
     img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
-    dataquery()
-    _db.close()
-    cursor.close()
 
-    dt = ImageDraw.Draw(img) # make text draw cursor
-    setupperpart()
-    globaly = settomorrowdata()
-    globaly = setbottompart(globaly)
-
-    finalimg =  img.crop((0, 0, imagex, globaly))
-    finalimg.show()
-    finalimg.save('static/output.png')
-    return
-
-with open('password.txt') as f:
-    logindata = f.read().splitlines() 
-id = logindata[0]
-pw = logindata[1]
-
-#내 서버에 있는 DB에 연결
-global _db
-
-global cursor
 
 today = date.today()
 tomorrow = today + timedelta(days = 1)
@@ -491,76 +450,34 @@ sat_day = date(2022, 11, 17)
 globalx = 0
 globaly = 0
 
+with open('password.txt') as f:
+    logindata = f.read().splitlines() 
+id = logindata[0]
+pw = logindata[1]
 
-# coding = utf-8
- 
-# -----------카카오톡 봇 -------------
+_db = pymysql.connect(
+user=id, 
+passwd=pw, 
+host='34.83.145.171', 
+db='schedule', 
+charset='utf8'
+)
+cursor = _db.cursor(pymysql.cursors.DictCursor)
 
-app = Flask(__name__)
+today = date.today()
+tomorrow = today + timedelta(days = 1)
+sat_day = date(2022, 11, 17)
+imagex, imagey = imageinit()
+img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
+dataquery()
 
-@app.route('/Reload_Schedule', methods=['POST'])
-def reload():
+dt = ImageDraw.Draw(img) # make text draw cursor
+setupperpart()
+globaly = settomorrowdata()
+globaly = setbottompart(globaly)
 
-    createimage()
-    print("I am getting reloaded")
-    
-    dataSend =  {
-            "version": "2.0",
-            "template": {
-                "outputs": [
-                    
-                    {
-                        "simpleText": {
-                            "text" : "아래 이미지로 재설정 완료했습니다!"
-                            }
-                           
-                        }
-                    ,
-                    {
-                        "simpleImage": {
-                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
-                            "altText": "에러"
-                        }
-                    }
-                ]
-            }
-        }
-
-    return jsonify(dataSend)
+finalimg =  img.crop((0, 0, imagex, globaly))
+finalimg.save('static/output.png')
 
 
-@app.route('/Check_Schedule', methods=['POST'])
-def schedule():
-
-    dataSend =  {
-            "version": "2.0",
-            "template": {
-                "outputs": [
-                    
-                    {
-                        "simpleText": {
-                            "text" : "내일 일정입니다!"
-                            }
-                           
-                        }
-                    ,
-                    {
-                        "simpleImage": {
-                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
-                            "altText": "에러"
-                        }
-                    }
-                ]
-            }
-        }
-    
-    return jsonify(dataSend)
-
-@app.route('/')
-def home():
-    return render_template('img.html')
- 
-if __name__ == "__main__":
-    createimage()
-    app.run(host='0.0.0.0', port=9900,debug=True)
 

@@ -1,5 +1,6 @@
 # coding = utf-8
- 
+
+from PIL import Image, ImageDraw, ImageFont
 from flask import Flask, render_template, jsonify, request
 import sys
 import CreateImage
@@ -8,9 +9,13 @@ app = Flask(__name__)
 
 @app.route('/Reload_Schedule', methods=['POST'])
 def reload():
+    CreateImage.__init__()
+    CreateImage.dataquery()
+    CreateImage.globaly = CreateImage.settomorrowdata()
+    CreateImage.globaly = setbottompart(CreateImage.globaly)
+    finalimg = CreateImage.img.crop((0, 0, imagex, globaly))
+    finalimg.save('static/output.png')
 
-    CreateImage.createimage()
-    
     dataSend =  {
             "version": "2.0",
             "template": {
