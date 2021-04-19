@@ -151,7 +151,6 @@ def get_diet(code, ymd, weekday):
     return element
 
 def dataquery():
-    stddic.clear()
     cursor.execute(_select_sorted_data % (__table_name))
     result = cursor.fetchall()
     
@@ -458,6 +457,7 @@ charset='utf8'
 )
 print("connection linked!")
 cursor = _db.cursor(pymysql.cursors.DictCursor)
+cursor.execute("set global max_allowed_packet=67108864")
 print("cursor linked!")
 
 today = date.today()
