@@ -452,11 +452,13 @@ pw = logindata[1]
 _db = pymysql.connect(
 user=id, 
 passwd=pw, 
-host='34.83.145.171', 
+host='34.83.145.171',
 db='schedule', 
 charset='utf8'
 )
+print("connection linked!")
 cursor = _db.cursor(pymysql.cursors.DictCursor)
+print("cursor linked!")
 
 today = date.today()
 tomorrow = today + timedelta(days = 1)
