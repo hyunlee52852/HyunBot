@@ -3,7 +3,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from flask import Flask, render_template, jsonify, request
 import sys
-import CreateImage
 
 app = Flask(__name__)
 
@@ -24,7 +23,7 @@ def schedule():
                     ,
                     {
                         "simpleImage": {
-                            "imageUrl": "http://34.83.145.171:9900/static/output.png",
+                            "imageUrl": "http://104.198.0.192:9900/static/output.png",
                             "altText": "에러"
                         }
                     }
