@@ -177,6 +177,9 @@ def dataquery():
 
         #print(date + " " + period + " " + desc)
         stddic.setdefault(date,[]).append((period, desc, dur, changeperiod))
+
+        cursor.close()
+        
 def setupperpart():
     upper_part = Image.open('Image_Files/Upper bar.png' , 'r')
 
