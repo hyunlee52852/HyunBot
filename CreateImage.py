@@ -235,7 +235,6 @@ def setupperpart():
             if(i > 0):
                 printtext(lenstr, satft, nextx, 180, (0, 0, 0))
 
-
 def settomorrowdata():
     curx = 50
     cury = 300
@@ -265,7 +264,6 @@ def settomorrowdata():
         for dat in stddic[tomorrowstr]:
             perioddata[int(dat[0])].append(dat[1])
             changeperioddata[int(dat[0])] = dat[3]
-            print(dat[3])
 
 
     #print(perioddata)
@@ -305,7 +303,6 @@ def printfooddata(cury):
     biggupsikfont = getfont(___noto_sans, 80)
     textfont = getfont(___noto_sans, 30)
     temptomorrow = tomorrow
-    print(tomorrow.weekday())
     #주말인 경우 다음 주 월요일 체크
     if temptomorrow.weekday() > 4 :
         temptomorrow += timedelta(days = 7 - tomorrow.weekday())
@@ -317,7 +314,6 @@ def printfooddata(cury):
 
     cury = printmultiplelines('중식', 40, 1030, cury, biggupsikfont, (0, 0, 0))
     jungsiklist = splitfooddata(jungsik)
-    print(jungsiklist)
     for line in jungsiklist:
         w, h = gupsikfont.getsize(line)
         cury = printmultiplelines(line, 20, 1030, cury, gupsikfont, (0, 0, 0))
@@ -325,7 +321,6 @@ def printfooddata(cury):
     linedashed(1010, cury, 19900, cury, 10, 2, 2)
     cury = printmultiplelines('석식', 40, 1030, cury, biggupsikfont, (0, 0, 0))
     sucksiklist = splitfooddata(sucksik)
-    print(sucksiklist)
     for line in sucksiklist:
         w, h = gupsikfont.getsize(line)
         cury = printmultiplelines(line, 20, 1030, cury, gupsikfont, (0, 0, 0))
@@ -366,7 +361,6 @@ def setbottompart(cury):
         if(curdate <= tomorrow and dur < 0):
             continue
         
-        print(dur)
         durdate = tomorrow + timedelta(days=dur)
 
         cury += 20
@@ -479,5 +473,4 @@ globaly = setbottompart(globaly)
 finalimg =  img.crop((0, 0, imagex, globaly))
 finalimg.save('static/output.png')
 
-
-
+print(datetime.now())
