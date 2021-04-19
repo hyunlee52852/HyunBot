@@ -179,7 +179,7 @@ def dataquery():
         stddic.setdefault(date,[]).append((period, desc, dur, changeperiod))
 
         cursor.close()
-        
+
 def setupperpart():
     upper_part = Image.open('Image_Files/Upper bar.png' , 'r')
 
@@ -451,13 +451,15 @@ with open('password.txt') as f:
 id = logindata[0]
 pw = logindata[1]
 
+print(datetime.now())
 _db = pymysql.connect(
 user=id, 
 passwd=pw, 
-host='34.83.145.171',
+host='104.198.0.192',
 db='schedule', 
 charset='utf8'
 )
+
 print("connection linked!")
 cursor = _db.cursor(pymysql.cursors.DictCursor)
 cursor.execute("set global max_allowed_packet=67108864")
@@ -477,5 +479,3 @@ globaly = setbottompart(globaly)
 
 finalimg =  img.crop((0, 0, imagex, globaly))
 finalimg.save('static/output.png')
-
-print(datetime.now())
