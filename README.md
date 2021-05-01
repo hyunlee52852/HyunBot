@@ -16,7 +16,7 @@ SQL에 연결 후 내용 받아오기 - DONE
 
 받아온 내용을 이미지로 전환 - DONE (CreateImage.py)
 
-카카오톡 봇과 연동 - TODO
+카카오톡 봇과 연동 - DONE
 
-카카오톡 봇 서버 구동, SQL 서버 고치기 - TODO
+카카오톡 봇 서버 구동, SQL 서버 고치기 - DONE
 
