@@ -75,19 +75,12 @@ _TIMETABLE = [
 ]
 #시간 변수 모음
 
-today = date.today()
-tomorrow = today + timedelta(days = 1)
-sat_day = date(2022, 11, 17)
-
-#글로벌 위치 변수 선언.
-globalx = 0
-globaly = 0
 
 #폰트 모음
-___d2coding_font = "fonts\\D2coding\\D2CodingLigature\\D2coding.ttf"
-___d2coding_font_bold = "fonts\\D2coding\\D2CodingLigature\\D2codingBold.ttf"
-___noto_sans_bold = "fonts\\Noto_Sans_KR\\NotoSansKR-Bold.otf"
-___noto_sans = "fonts\\Noto_Sans_KR\\NotoSansKR-Medium.otf"
+___d2coding_font = "fonts/D2coding/D2CodingLigature/D2coding.ttf"
+___d2coding_font_bold = "fonts/D2coding/D2CodingLigature/D2codingBold.ttf"
+___noto_sans_bold = "fonts/Noto_Sans_KR/NotoSansKR-Bold.otf"
+___noto_sans = "fonts/Noto_Sans_KR/NotoSansKR-Medium.otf"
 #-----------
 
 #텍스트 관련 함수 모음
@@ -199,8 +192,11 @@ def dataquery():
 
         #print(date + " " + period + " " + desc)
         stddic.setdefault(date,[]).append((period, desc, dur, changeperiod))
+
+        cursor.close()
+
 def setupperpart():
-    upper_part = Image.open('Image Files\\Upper bar.png' , 'r')
+    upper_part = Image.open('Image_Files/Upper bar.png' , 'r')
 
     #상단 이미지 png로 불러오기
     upper_part = Image.composite(upper_part, Image.new('RGB', upper_part.size, 'white'), upper_part)
@@ -256,7 +252,6 @@ def setupperpart():
             if(i > 0):
                 printtext(lenstr, satft, nextx, 180, (0, 0, 0))
 
-
 def settomorrowdata():
     cury = 300
     tomorrowstr = str(tomorrow.strftime("%Y-%m-%d"))
@@ -285,7 +280,6 @@ def settomorrowdata():
         for dat in stddic[tomorrowstr]:
             perioddata[int(dat[0])].append(dat[1])
             changeperioddata[int(dat[0])] = dat[3]
-            print(dat[3])
 
 
     #print(perioddata)
@@ -301,7 +295,7 @@ def settomorrowdata():
         printmultiplelines(cursub, 40, 100, cury + 15, periodnamefont, (0, 0, 0))
         beforey = cury
         for dat in perioddata[curperiod]:
-            cury = printmultiplelines(dat, 25, 230, cury + 30, textfont, (0, 0, 0))
+            cury = printmultiplelines(dat, 20, 230, cury + 30, textfont, (0, 0, 0))
             #print(cury)
         if(cury - beforey <= 70):
             cury = beforey + 100
@@ -324,7 +318,6 @@ def printfooddata(cury):
     gupsikfont = getfont(___noto_sans, 50)
     biggupsikfont = getfont(___noto_sans, 80)
     temptomorrow = tomorrow
-    print(tomorrow.weekday())
     #주말인 경우 다음 주 월요일 체크
     if temptomorrow.weekday() > 4 :
         temptomorrow += timedelta(days = 7 - tomorrow.weekday())
@@ -336,7 +329,6 @@ def printfooddata(cury):
 
     cury = printmultiplelines('중식', 40, 1030, cury, biggupsikfont, (0, 0, 0))
     jungsiklist = splitfooddata(jungsik)
-    print(jungsiklist)
     for line in jungsiklist:
         w, h = gupsikfont.getsize(line)
         cury = printmultiplelines(line, 20, 1030, cury, gupsikfont, (0, 0, 0))
@@ -344,7 +336,6 @@ def printfooddata(cury):
     linedashed(1010, cury, 19900, cury, 10, 2, 2)
     cury = printmultiplelines('석식', 40, 1030, cury, biggupsikfont, (0, 0, 0))
     sucksiklist = splitfooddata(sucksik)
-    print(sucksiklist)
     for line in sucksiklist:
         w, h = gupsikfont.getsize(line)
         cury = printmultiplelines(line, 20, 1030, cury, gupsikfont, (0, 0, 0))
@@ -384,7 +375,6 @@ def setbottompart(cury):
         if(curdate <= tomorrow and dur < 0):
             continue
         
-        print(dur)
         durdate = tomorrow + timedelta(days=dur)
 
         cury += 20
@@ -450,17 +440,54 @@ def imageinit(): #이미지의 크기를 미리 결정
         #print(value)
     return imagex, imagey
 
-# cursor position init
+def __init__():
+    today = date.today()
+    tomorrow = today + timedelta(days = 1)
+    sat_day = date(2022, 11, 17)
+    globalx = 0
+    globaly = 0
+    imagex, imagey = imageinit()
+    img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
 
-dataquery()
-print(stddic)
+
+today = date.today()
+tomorrow = today + timedelta(days = 1)
+sat_day = date(2022, 11, 17)
+
+#글로벌 위치 변수 선언.
+globalx = 0
+globaly = 0
+
+with open('password.txt') as f:
+    logindata = f.read().splitlines() 
+id = logindata[0]
+pw = logindata[1]
+
+print(datetime.now())
+_db = pymysql.connect(
+user=id, 
+passwd=pw, 
+host='104.198.0.192',
+db='schedule', 
+charset='utf8'
+)
+
+print("connection linked!")
+cursor = _db.cursor(pymysql.cursors.DictCursor)
+cursor.execute("set global max_allowed_packet=67108864")
+print("cursor linked!")
+
+today = date.today()
+tomorrow = today + timedelta(days = 1)
+sat_day = date(2022, 11, 17)
 imagex, imagey = imageinit()
 img = Image.new('RGB', (imagex, imagey), color = 'white') # create img
+dataquery()
+
 dt = ImageDraw.Draw(img) # make text draw cursor
 setupperpart()
 globaly = settomorrowdata()
 globaly = setbottompart(globaly)
 
 finalimg =  img.crop((0, 0, imagex, globaly))
-finalimg.show()
-finalimg.save('output.png')
+finalimg.save('static/output.png')
