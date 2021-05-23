@@ -23,7 +23,7 @@ def schedule():
                     ,
                     {
                         "simpleImage": {
-                            "imageUrl": "http://104.198.0.192:9900/static/output.png",
+                            "imageUrl": "stdin.kr/static/output.png",
                             "altText": "에러"
                         }
                     }
