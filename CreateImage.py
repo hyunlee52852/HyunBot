@@ -19,7 +19,7 @@ pw = logindata[1]
 _db = pymysql.connect(
     user=id, 
     passwd=pw, 
-    host='34.82.97.92', 
+    host='stdin.kr',
     db='schedule', 
     charset='utf8'
 )
@@ -49,7 +49,7 @@ stddic = {}
 _LIT = '문학'
 _ENG = '영어'
 _MAT = '수학'
-_PE = '체육'
+_PHE = '체육'
 _MUS = '음악'
 _SPE = '창체'
 
@@ -57,21 +57,19 @@ _SPE = '창체'
 _MTA = '수A'
 _MTB = '수B'
 _JAP = '일어'
-_IFA = '정A'
-_IFB = '정B'
+_IFM = '정통'
 _SYS = '시프'
-_DTA = '료A'
-_DTB = '료B'
+_DAT = '자료'
 _SPC = '창특'
 _IND = '공업'
 _SCF = '창진' 
 _NON = 'N/A'
 _TIMETABLE = [
-    [_MTA, _PE, _JAP, _IFB, _IFB, _IND, _NON],
-    [_LIT, _ENG, _MAT, _SYS, _SYS, _SPE, _SPE],
-    [_DTA, _JAP, _MTB, _IFA, _ENG, _LIT, _MAT],
-    [_SYS, _SYS, _MTA, _SPC, _JAP, _MUS, _DTB],
-    [_MAT, _LIT, _IND, _SYS, _SYS, _ENG, _SCF],
+    [_LIT, _JAP, _IND, _ENG, _IFM, _IFM, _NON],
+    [_MAT, _PHE, _MTA, _DAT, _LIT, _SPE, _SPE],
+    [_SYS, _SYS, _MTB, _MUS, _JAP, _DAT, _ENG],
+    [_SPC, _MTA, _IND, _JAP, _MAT, _SYS, _SYS],
+    [_MAT, _LIT, _DAT, _SCF, _ENG, _SYS, _SYS],
     [_NON, _NON, _NON, _NON, _NON, _NON, _NON],
     [_NON, _NON, _NON, _NON, _NON, _NON, _NON]
 ]
@@ -260,7 +258,6 @@ def setupperpart():
 
 
 def settomorrowdata():
-    curx = 50
     cury = 300
     tomorrowstr = str(tomorrow.strftime("%Y-%m-%d"))
     kyoshifont = getfont(___noto_sans_bold, 40)
@@ -326,7 +323,6 @@ def splitfooddata(originlist):
 def printfooddata(cury):
     gupsikfont = getfont(___noto_sans, 50)
     biggupsikfont = getfont(___noto_sans, 80)
-    textfont = getfont(___noto_sans, 30)
     temptomorrow = tomorrow
     print(tomorrow.weekday())
     #주말인 경우 다음 주 월요일 체크
@@ -357,11 +353,10 @@ def printfooddata(cury):
         
     
 def setbottompart(cury):
-    lower_part = Image.open('Image Files\Down bar.png', 'r')
+    lower_part = Image.open('Image Files\\Down bar.png', 'r')
     lower_part = Image.composite(lower_part, Image.new('RGB', lower_part.size, 'white'), lower_part)
-    lower_part_flipped = Image.open('Image Files\Down bar Flipped.png', 'r')
+    lower_part_flipped = Image.open('Image Files\\Down bar Flipped.png', 'r')
     lower_part_flipped = Image.composite(lower_part_flipped, Image.new('RGB', lower_part_flipped.size, 'white'), lower_part_flipped)
-    
     datefont = getfont(___d2coding_font, 150)
     datefontsmall = getfont(___d2coding_font, 50)
     textfont = getfont(___noto_sans, 40)
